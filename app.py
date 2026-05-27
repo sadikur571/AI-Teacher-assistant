@@ -57,20 +57,20 @@ if st.button(lang_data["btn"]):
         st.warning("Please enter a question! / দয়া করে একটি প্রশ্ন লিখুন!")
     else:
         with st.spinner(lang_data["loading"]):
-            try:
-              # প্রম্পট ও সিস্টেম রোল তৈরি করা
-        system_instruction = f"You are an expert, helpful, and friendly school teacher. Your developer and creator is Sadikur Rahman (সাদিকুর রহমান). If anyone asks who created you or who is your developer, you must proudly say that Sadikur Rahman created you. Answer all other educational questions clearly. Please provide the response in {selected_lang} language."
+                try:
+                      # প্রম্পট ও সিস্টেম রোল তৈরি করা
+                system_instruction = f"You are an expert, helpful, and friendly school teacher. Your developer and creator is Sadikur Rahman (সাদিকুর রহমান). If anyone asks who created you or who is your developer, you must proudly say that Sadikur Rahman created you. Answer all other educational questions clearly. Please provide the response in {selected_lang} language."
 
-        # Groq Llama 3.3 মডেল কল করা
-        completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": system_instruction},
-                {"role": "user", "content": user_query}
-            ],
-            temperature=0.7,
-            max_tokens=2048,
-        )
+                # Groq Llama 3.3 মডেল কল করা
+                completion = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": user_query}
+                    ],
+                    temperature=0.7,
+                    max_tokens=2048,
+                )
                 
                 # উত্তর স্ক্রিনে দেখানো
                 result = completion.choices[0].message.content
