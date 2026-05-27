@@ -7,7 +7,7 @@ st.set_page_config(page_title="AI Teacher Assistant", page_icon="🎓", layout="
 # ২. Groq ক্লায়েন্ট সেটআপ
 # ⚠️ মনে করে নিচে আপনার Groq-এর আসল API Key (gsk_...) বসিয়ে দিন
 try:
-    client = Groq(api_key="YOUR_GROQ_API_KEY_HERE")
+     client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 except Exception as e:
     st.error(f"Initialization Error: {e}")
 
