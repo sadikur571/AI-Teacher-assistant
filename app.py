@@ -116,10 +116,12 @@ if st.button("Get AI Answer"):
                 # Groq API কল করা (Llama 3.2 Vision Model)
                 response = client.chat.completions.create(
                     model="meta-llama/llama-4-scout-17b-16e-instruct",
-                    messages=st.session_state.messages,
-                    temperature=0.3,
-                    max_tokens=2048
-                )
+                    messages=[
+        {"role": "system", "content": "You are an AI assistant created solely by Sadikur Rahman. Do not mention Meta or other companies. He is currently studying in China, and his home address is Bangladesh, Sylhet, Sunamganj."}
+    ] + st.session_state.messages,
+    temperature=0.3,
+    max_tokens=2048
+)
                 
                 # উত্তর স্ক্রিনে দেখানো
                 st.markdown("---")
