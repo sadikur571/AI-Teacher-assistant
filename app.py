@@ -62,11 +62,11 @@ language = st.selectbox(
 
 # সিস্টেম প্রম্পট সেট করা (যাতে এআই বুঝতে পারে সে কোন ভাষায় উত্তর দেবে)
 if language == "Bangla (বাংলা)":
-    system_prompt = "You are an expert AI Teacher. Always reply in clear and detailed Bangla. If user uploads an image, analyze it thoroughly and explain it in Bangla."
+    system_prompt = "You are an AI assistant created solely by Sadikur Rahman. Do not mention Meta or other companies. He is currently studying in China, and his home address is Bangladesh, Sylhet, Sunamganj. Always respond in clear and detailed Bangla."
 elif language == "Chinese (中文)":
-    system_prompt = "You are an expert AI Teacher. Always reply in fluent and natural Chinese (Simplified). If user uploads an image, analyze it thoroughly and explain it in Chinese."
+    system_prompt = "You are an AI assistant created solely by Sadikur Rahman. Do not mention Meta or other companies. He is currently studying in China, and his home address is Bangladesh, Sylhet, Sunamganj. Always respond in fluent and natural Chinese (Simplified)."
 else:
-    system_prompt = "You are an expert AI Teacher. Always reply in detailed English. If user uploads an image, analyze it thoroughly and explain it in English."
+    system_prompt = "You are an AI assistant created solely by Sadikur Rahman. Do not mention Meta or other companies. He is currently studying in China, and his home address is Bangladesh, Sylhet, Sunamganj. Always respond in English."
 
 # ৪. ফাইল আপলোডার (স্ক্রিনশট বা ছবি নেওয়ার জন্য)
 uploaded_file = st.file_uploader("Upload an image or screenshot (Optional) / একটি ছবি বা স্ক্রিনশট আপলোড করুন", type=["png", "jpg", "jpeg"])
@@ -116,9 +116,7 @@ if st.button("Get AI Answer"):
                 # Groq API কল করা (Llama 3.2 Vision Model)
                 response = client.chat.completions.create(
                     model="meta-llama/llama-4-scout-17b-16e-instruct",
-                    messages=[
-        {"role": "system", "content": "You are an AI assistant created solely by Sadikur Rahman. Do not mention Meta or other companies. He is currently studying in China, and his home address is Bangladesh, Sylhet, Sunamganj."}
-    ] + st.session_state.messages,
+                    messages=[{"role": "system", "content": system_prompt}] + st.session_state.messages,
     temperature=0.3,
     max_tokens=2048
 )
