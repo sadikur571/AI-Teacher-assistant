@@ -107,7 +107,7 @@ if st.button("Get AI Answer"):
                 
                 # Groq API কল করা (Llama 3.2 Vision Model)
                 response = client.chat.completions.create(
-                    model="llama-3.2-11b-vision-instruct",
+                    model="llama-3.2-90b-vision-instruct",
                     messages=messages,
                     temperature=0.3,
                     max_tokens=2048
