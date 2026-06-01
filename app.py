@@ -2,7 +2,10 @@ import streamlit as st
 from groq import Groq
 import os
 import base64
-
+def clear_chat_history():
+    st.session_state.messages = [
+        {"role": "system", "content": "You are an AI assistant created solely by Sadikur Rahman. Do not mention Meta or other companies. He is currently studying in China, and his home address is Bangladesh, Sylhet, Sunamganj."}
+    ]
 # ১. পেজ কনফিগারেশন এবং স্টাইল (রয়েল ব্লু থিম)
 st.set_page_config(
     page_title="AI Teacher Assistant",
@@ -53,7 +56,8 @@ st.write("Your personal AI tutor for text, images, and multilingual doubts!")
 # ভাষা নির্বাচন করার ড্রপডাউন (চাইনিজ ভাষা যুক্ত করা হয়েছে)
 language = st.selectbox(
     "Choose Language / ভাষা নির্বাচন করুন / 选择语言",
-    ["English", "Bangla (বাংলা)", "Chinese (中文)"]
+    ["English", "Bangla (বাংলা)", "Chinese (中文)"],
+    on_change=clear_chat_history
 )
 
 # সিস্টেম প্রম্পট সেট করা (যাতে এআই বুঝতে পারে সে কোন ভাষায় উত্তর দেবে)
