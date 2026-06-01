@@ -48,7 +48,7 @@ st.markdown("""
 # ২. Groq ক্লায়েন্ট সেটআপ
 # ⚠️ মনে করে নিচে আপনার Groq-এর আসল API Key (gsk_...) বসিয়ে দিন
 try:
-    client = Groq(api_key="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")
+    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 except Exception as e:
     st.error(f"Initialization Error: {e}")
 
