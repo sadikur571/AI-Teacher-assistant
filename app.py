@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# কাস্টম সিএসএস স্টাইল
+# কাস্টম সিএসএস স্টাইল (এখানে ভুলটি ফিক্স করা হয়েছে)
 st.markdown("""
     <style>
     [data-testid="stAppViewContainer"] {
@@ -30,7 +30,7 @@ st.markdown("""
         background-color: #1565C0 !important;
     }
     </style>
-""", unsafe_index=True)
+""", unsafe_allow_html=True)
 
 # ২. Groq API ক্লায়েন্ট তৈরি করা (Streamlit Secrets থেকে সুরক্ষিতভাবে চাবি নেওয়া)
 try:
@@ -70,7 +70,7 @@ if uploaded_file is not None:
 # ৫. প্রশ্ন লেখার টেক্সট বক্স
 user_query = st.text_area("Ask your question to AI Teacher: / আপনার প্রশ্নটি লিখুন:", height=100)
 
-# ৬. উত্তর জেনারেট করার বাটন ও লজিক
+# 六. উত্তর জেনারেট করার বাটন ও লজিক
 if st.button("Get AI Answer"):
     if not user_query and uploaded_file is None:
         st.warning("Please enter a question or upload an image first! / দয়া করে একটি প্রশ্ন লিখুন অথবা ছবি আপলোড করুন!")
