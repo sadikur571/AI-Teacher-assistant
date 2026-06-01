@@ -107,12 +107,12 @@ if st.button("Get AI Answer"):
                     # যদি শুধু টেক্সট প্রশ্ন হয়
                     user_content = user_query
                 
-                messages.append({"role": "user", "content": user_content})
+                st.session_state.messages.append({"role": "user", "content": user_content})
                 
                 # Groq API কল করা (Llama 3.2 Vision Model)
                 response = client.chat.completions.create(
                     model="meta-llama/llama-4-scout-17b-16e-instruct",
-                    messages=messages,
+                    messages=st.session_state.messages,
                     temperature=0.3,
                     max_tokens=2048
                 )
