@@ -1,17 +1,21 @@
 import streamlit as st
 from groq import Groq
+import os
+import base64
 
-# ১. ওয়েবসাইটের পেইজ সেটআপ (টাইটেল এবং আইকন)
-st.set_page_config(page_title="AI Teacher Assistant", page_icon="🎓", layout="centered")
-# --- কাস্টম সিএসএস (UI/UX ডিজাইন আপডেট) ---
+# ১. পেজ কনফিগারেশন এবং স্টাইল (রয়েল ব্লু থিম)
+st.set_page_config(
+    page_title="AI Teacher Assistant",
+    page_icon="🎓",
+    layout="wide"
+)
+
+# কাস্টম সিএসএস স্টাইল
 st.markdown("""
     <style>
-    /* ১. পুরো অ্যাপের ব্যাকগ্রাউন্ড হালকা উন্নত করা */
     [data-testid="stAppViewContainer"] {
         background-color: #fdfdfd;
     }
-    
-    /* ২. "Get AI Answer" বাটনের চেহারা সুন্দর করা */
     .stButton>button {
         background-color: #1E88E5 !important;
         color: white !important;
@@ -21,100 +25,98 @@ st.markdown("""
         border: none !important;
         padding: 12px 28px !important;
         box-shadow: 0px 4px 10px rgba(30, 136, 229, 0.2) !important;
-        transition: all 0.3s ease;
     }
-    
-    /* ৩. বাটনের ওপর মাউস নিলে সুন্দর ইংরেজি ও অ্যানিমেশন */
     .stButton>button:hover {
         background-color: #1565C0 !important;
-        box-shadow: 0px 6px 15px rgba(21, 101, 192, 0.4) !important;
-        transform: translateY(-2px);
-    }
-    
-    /* ৪. টেক্সট ইনপুট বক্সটি সুন্দর করা */
-    .stTextArea textarea {
-        border-radius: 8px !important;
-        border: 1px solid #E0E0E0 !important;
-        font-size: 15px !important;
-    }
-    
-    /* ৫. এআই রেসপন্স সেকশনের টাইটেল সুন্দর করা */
-    h2, h3 {
-        color: #0D47A1 !important;
-        font-weight: 700 !important;
     }
     </style>
-""", unsafe_allow_html=True)
-# ২. Groq ক্লায়েন্ট সেটআপ
-# ⚠️ মনে করে নিচে আপনার Groq-এর আসল API Key (gsk_...) বসিয়ে দিন
+""", unsafe_index=True)
+
+# ২. Groq API ক্লায়েন্ট তৈরি করা (Streamlit Secrets থেকে সুরক্ষিতভাবে চাবি নেওয়া)
 try:
     client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 except Exception as e:
     st.error(f"Initialization Error: {e}")
 
-# ৩. ইন্টারফেসের ভাষা অনুযায়ী টেক্সট ডাটা
-content = {
-    "English": {
-        "title": "🎓 AI Teacher Assistant",
-        "subtitle": "Your personal AI tutor for coding, language, and doubts!",
-        "label": "Ask your question to AI Teacher:",
-        "btn": "Get AI Answer",
-        "loading": "Thinking...",
-        "out": "📝 AI Teacher's Response:"
-    },
-    "Bangla": {
-        "title": "🎓 এআই শিক্ষক সহকারী",
-        "subtitle": "কোডিং, ভাষা শিক্ষা বা যেকোনো পড়াশোনার জন্য আপনার ব্যক্তিগত টিউটর!",
-        "label": "এআই শিক্ষককে আপনার প্রশ্নটি জিজ্ঞেস করুন:",
-        "btn": "উত্তর জানুন",
-        "loading": "ভাবছি...",
-        "out": "📝 এআই শিক্ষকের উত্তর:"
-    },
-    "French": {
-        "title": "🎓 Assistant Enseignant IA",
-        "subtitle": "Votre tuteur IA personnel pour le codage, les langues et les doutes!",
-        "label": "Posez votre question à l'enseignant IA:",
-        "btn": "Obtenir la réponse",
-        "loading": "En réflexion...",
-        "out": "📝 Réponse de l'enseignant IA:"
-    }
-}
+# ইমেজকে base64 ফরম্যাটে রূপান্তর করার ফাংশন
+def encode_image(uploaded_file):
+    return base64.b64encode(uploaded_file.read()).decode('utf-8')
 
-# ⁴. সাইডবারে ভাষা সিলেক্ট করার ড্রপডাউন
-selected_lang = st.sidebar.selectbox("🌐 Choose Language / ভাষা নির্বাচন করুন", list(content.keys()))
-lang_data = content[selected_lang]
+# ৩. ইন্টারফেস তৈরি
+st.title("🎓 AI Teacher Assistant (Vision Edition)")
+st.write("Your personal AI tutor for text, images, and multilingual doubts!")
 
-# ⁵. ওয়েবসাইটের মূল অংশ ডিজাইন
-st.title(lang_data["title"])
-st.write(lang_data["subtitle"])
-st.markdown("---")
+# ভাষা নির্বাচন করার ড্রপডাউন (চাইনিজ ভাষা যুক্ত করা হয়েছে)
+language = st.selectbox(
+    "Choose Language / ভাষা নির্বাচন করুন / 选择语言",
+    ["English", "Bangla (বাংলা)", "Chinese (中文)"]
+)
 
-# ইনপুট বক্স
-user_query = st.text_area(lang_data["label"], value="What is Artificial Intelligence?", height=100)
+# সিস্টেম প্রম্পট সেট করা (যাতে এআই বুঝতে পারে সে কোন ভাষায় উত্তর দেবে)
+if language == "Bangla (বাংলা)":
+    system_prompt = "You are an expert AI Teacher. Always reply in clear and detailed Bangla. If user uploads an image, analyze it thoroughly and explain it in Bangla."
+elif language == "Chinese (中文)":
+    system_prompt = "You are an expert AI Teacher. Always reply in fluent and natural Chinese (Simplified). If user uploads an image, analyze it thoroughly and explain it in Chinese."
+else:
+    system_prompt = "You are an expert AI Teacher. Always reply in detailed English. If user uploads an image, analyze it thoroughly and explain it in English."
 
-# অ্যাকশন বাটন
-if st.button(lang_data["btn"]):
-    if not user_query.strip():
-        st.warning("Please enter a question! / দয়া করে একটি প্রশ্ন লিখুন!")
+# ৪. ফাইল আপলোডার (স্ক্রিনশট বা ছবি নেওয়ার জন্য)
+uploaded_file = st.file_uploader("Upload an image or screenshot (Optional) / একটি ছবি বা স্ক্রিনশট আপলোড করুন", type=["png", "jpg", "jpeg"])
+
+if uploaded_file is not None:
+    # স্ক্রিনে আপলোড করা ছবিটি দেখানো
+    st.image(uploaded_file, caption="Uploaded Image", width=400)
+
+# ৫. প্রশ্ন লেখার টেক্সট বক্স
+user_query = st.text_area("Ask your question to AI Teacher: / আপনার প্রশ্নটি লিখুন:", height=100)
+
+# ৬. উত্তর জেনারেট করার বাটন ও লজিক
+if st.button("Get AI Answer"):
+    if not user_query and uploaded_file is None:
+        st.warning("Please enter a question or upload an image first! / দয়া করে একটি প্রশ্ন লিখুন অথবা ছবি আপলোড করুন!")
     else:
-        with st.spinner(lang_data["loading"]):
+        with st.spinner("AI Teacher is thinking..."):
             try:
-                # প্রম্পট তৈরি করা
-                full_prompt = f"Respond in {selected_lang} language. Question: {user_query}"
+                # মেসেজ লিস্ট তৈরি
+                messages = [
+                    {"role": "system", "content": system_prompt}
+                ]
                 
-                # Groq Llama 3.3 মডেল কল করা
-                completion = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    messages=[{"role": "user", "content": full_prompt}],
-                    temperature=0.7,
+                # যদি ইউজার ছবি আপলোড করে থাকে
+                if uploaded_file is not None:
+                    base64_image = encode_image(uploaded_file)
+                    
+                    # প্রম্পট যদি খালি থাকে তবে ডিফল্ট প্রশ্ন দেওয়া
+                    final_text_query = user_query if user_query else "Explain this image in detail based on the selected language."
+                    
+                    # ভিশন মডেলের জন্য মেসেজ ফরম্যাট
+                    user_content = [
+                        {"type": "text", "text": final_text_query},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            }
+                        }
+                    ]
+                else:
+                    # যদি শুধু টেক্সট প্রশ্ন হয়
+                    user_content = user_query
+                
+                messages.append({"role": "user", "content": user_content})
+                
+                # Groq API কল করা (Llama 3.2 Vision Model)
+                response = client.chat.completions.create(
+                    model="llama-3.2-90b-vision-preview",
+                    messages=messages,
+                    temperature=0.3,
                     max_tokens=2048
                 )
                 
                 # উত্তর স্ক্রিনে দেখানো
-                result = completion.choices[0].message.content
                 st.markdown("---")
-                st.subheader(lang_data["out"])
-                st.write(result)
+                st.subheader("📝 AI Teacher's Response:")
+                st.write(response.choices[0].message.content)
                 
             except Exception as e:
-                st.error(f"Error: {str(e)}\n\nPlease check your VPN connection! (চায়না থেকে ব্যবহারের জন্য ভিপিএন অন রাখুন)")
+                st.error(f"Error generating response: {e}")
