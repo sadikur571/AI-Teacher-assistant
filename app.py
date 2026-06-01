@@ -9,7 +9,11 @@ st.set_page_config(
     page_icon="🎓",
     layout="wide"
 )
-
+# পরিচয় সেটআপ (এআই যেন সবসময় মনে রাখে)
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+        {"role": "system", "content": "You are an AI assistant created by Sadikur Rahman. Sadikur Rahman is currently studying in China. His home address is Bangladesh, Sylhet, Sunamganj. Always introduce yourself as Sadikur Rahman's AI assistant."}
+    ]
 # কাস্টম সিএসএস স্টাইল (এখানে ভুলটি ফিক্স করা হয়েছে)
 st.markdown("""
     <style>
