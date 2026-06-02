@@ -70,20 +70,15 @@ st.title("🎓 AI Teacher Assistant (Vision Edition)")
 st.write("Your personal AI tutor for text, images, and multilingual doubts!")
 
 # ভাষা নির্বাচন করার ড্রপডাউন (চাইনিজ ভাষা যুক্ত করা হয়েছে)
+# ভাষা নির্বাচন করার ড্রপডাউন
 language = st.selectbox(
     "Choose Language / ভাষা নির্বাচন করুন / 选择语言",
-    ["English", "Bangla (বাংলা)", "Chinese (中文)"],
-    on_change=clear_chat_history
+    ["English", "Bangla (বাংলা)", "Chinese (中文)"]
 )
-
 # সিস্টেম প্রম্পট সেট করা (যাতে এআই বুঝতে পারে সে কোন ভাষায় উত্তর দেবে)
-if language == "Bangla (বাংলা)":
-    system_prompt = "You are an AI assistant created solely by Sadikur Rahman. Do not mention Meta or other companies. He is currently studying in China, and his home address is Bangladesh, Sylhet, Sunamganj. Always respond in clear and detailed Bangla."
-elif language == "Chinese (中文)":
-    system_prompt = "You are an AI assistant created solely by Sadikur Rahman. Do not mention Meta or other companies. He is currently studying in China, and his home address is Bangladesh, Sylhet, Sunamganj. Always respond in fluent and natural Chinese (Simplified)."
-else:
-    system_prompt = "You are an AI assistant created solely by Sadikur Rahman. Do not mention Meta or other companies. He is currently studying in China, and his home address is Bangladesh, Sylhet, Sunamganj. Always respond in English."
-
+# সিস্টেম প্রম্পট সেট করার জন্য আপনার বানানো ফাংশনটি ব্যবহার করুন
+# বিষয় হিসেবে "General" সেট করা হয়েছে যাতে যেকোনো বিষয়ে সাহায্য করতে পারে
+system_prompt = get_system_prompt("General", language)
 # ৪. ফাইল আপলোডার (স্ক্রিনশট বা ছবি নেওয়ার জন্য)
 uploaded_file = st.file_uploader("Upload an image or screenshot (Optional) / একটি ছবি বা স্ক্রিনশট আপলোড করুন", type=["png", "jpg", "jpeg"])
 
