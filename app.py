@@ -94,17 +94,22 @@ if "chat_history" not in st.session_state:
 # চ্যাট ইনপুট বক্স
 if prompt := st.chat_input("Ask your question to AI Teacher:"):
     st.session_state.chat_history.append(prompt)
-    user_query = prompt  # আপনার আগের লজিকের সাথে মিলিয়ে রাখার জন্য
+
 # 六. উত্তর জেনারেট করার বাটন ও লজিক
 if st.button("Get AI Answer"):
+    # ১০০ নম্বর লাইন থেকে শুরু হবে:
     if len(st.session_state.chat_history) == 0 and uploaded_file is None:
-        st.warning("Please enter a question or upload an image first! / দয়া করে একটি প্রশ্ন লিখুন অথবা ছবি আপলোড করুন!")
+        st.warning("Please enter a question or upload an image first!")
     else:
+        # হিস্ট্রি থেকে শেষ প্রশ্নটি নেওয়া
+        current_query = st.session_state.chat_history[-1] if len(st.session_state.chat_history) > 0 else "Explain this"
+        
         with st.spinner("AI Teacher is thinking..."):
             try:
-                # মেসেজ লিস্ট তৈরি
+                # মেসেজ লিস্ট তৈরি (নতুন লজিক অনুযায়ী)
                 messages = [
-                    {"role": "system", "content": system_prompt}
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": current_query}
                 ]
                 
                 # যদি ইউজার ছবি আপলোড করে থাকে
