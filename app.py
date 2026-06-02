@@ -2,17 +2,26 @@ import streamlit as st
 from groq import Groq
 import os
 import base64
-def clear_chat_history():
-    # এখানে আপনার মূল পরিচয় এবং ব্যাকগ্রাউন্ড তথ্য দেওয়া আছে যা এআই সবসময় মনে রাখবে
-    system_instruction = (
-        "You are an AI assistant created solely by Sadikur Rahman. "
-        "Do not mention Meta or other companies. He is currently studying in China, "
-        "and his home address is Bangladesh, Sylhet, Sunamganj."
-    )
+def get_system_prompt(subject, language):
+    identity = "You are an AI assistant created solely by Sadikur Rahman. Do not mention Meta or other companies. He is currently studying in China, and his home address is Bangladesh, Sylhet, Sunamganj."
     
-    st.session_state.messages = [
-        {"role": "system", "content": system_instruction}
-    ]
+    # বিষয়ভিত্তিক লজিক
+    if subject == "General":
+        sub_instruction = "You are a versatile academic tutor capable of explaining any subject, from Mathematics and Science to History and Literature. Provide comprehensive, accurate, and easy-to-understand explanations for any academic question."
+    elif subject == "Mathematics":
+        sub_instruction = "Focus on step-by-step logical solutions and formulas."
+    elif subject == "Science":
+        sub_instruction = "Provide clear, scientific explanations with examples."
+    else:
+        sub_instruction = "Provide helpful and detailed explanations."
+        
+    # ভাষা লজিক
+    if language == "Bangla (বাংলা)":
+        lang_instruction = "Always respond in clear and detailed Bangla."
+    else:
+        lang_instruction = "Always respond in the requested language."
+        
+    return f"{identity} You are acting as a {subject} tutor. {sub_instruction} {lang_instruction}"
 # ১. পেজ কনফিগারেশন এবং স্টাইল (রয়েল ব্লু থিম)
 st.set_page_config(
     page_title="AI Teacher Assistant",
