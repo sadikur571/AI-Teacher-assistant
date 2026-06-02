@@ -105,37 +105,32 @@ if st.button("Get AI Answer"):
         current_query = st.session_state.chat_history[-1] if len(st.session_state.chat_history) > 0 else "Explain this"
         
         with st.spinner("AI Teacher is thinking..."):
-        try:
-            # ইমেজ প্রসেসিং ও ইউজার কনটেন্ট তৈরি
-            if uploaded_file is not None:
-                base64_image = encode_image(uploaded_file)
-                final_text_query = current_query if current_query else "Explain this image in detail based on the selected language."
-                user_content = [
-                    {"type": "text", "text": final_text_query},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
-                ]
-            else:
-                user_content = current_query
-            
-            # মেসেজ হিস্ট্রিতে যোগ করা
-            st.session_state.messages.append({"role": "user", "content": user_content})
-            
-            # এপিআই কল
-            response = client.chat.completions.create(
-                model="meta-llama/llama-4-scout-17b-16e-instruct",
-                messages=[{"role": "system", "content": system_prompt}] + st.session_state.messages,
-                temperature=0.3,
-                max_tokens=2048
-            )
-            
-            # উত্তর স্ক্রিনে দেখানো
-            response_text = response.choices[0].message.content
-            st.markdown("---")
-            st.subheader("📝 AI Teacher's Response:")
-            st.write(response_text)
-            
-            # অ্যাসিস্ট্যান্টের উত্তর হিস্ট্রিতে যোগ করা
-            st.session_state.messages.append({"role": "assistant", "content": response_text})
-
-        except Exception as e:
-            st.error(f"Error: {e}")
+            try:
+                if uploaded_file is not None:
+                    base64_image = encode_image(uploaded_file)
+                    final_text_query = current_query if current_query else "Explain this image in detail."
+                    user_content = [
+                        {"type": "text", "text": final_text_query},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
+                    ]
+                else:
+                    user_content = current_query
+                
+                st.session_state.messages.append({"role": "user", "content": user_content})
+                
+                response = client.chat.completions.create(
+                    model="meta-llama/llama-4-scout-17b-16e-instruct",
+                    messages=[{"role": "system", "content": system_prompt}] + st.session_state.messages,
+                    temperature=0.3,
+                    max_tokens=2048
+                )
+                
+                response_text = response.choices[0].message.content
+                st.markdown("---")
+                st.subheader("📝 AI Teacher's Response:")
+                st.write(response_text)
+                
+                st.session_state.messages.append({"role": "assistant", "content": response_text})
+                
+            except Exception as e:
+                st.error(f"Error: {e}")
