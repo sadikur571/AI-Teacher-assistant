@@ -117,7 +117,8 @@ if st.button("Get AI Answer"):
                     base64_image = encode_image(uploaded_file)
                     
                     # প্রম্পট যদি খালি থাকে তবে ডিফল্ট প্রশ্ন দেওয়া
-                    final_text_query = user_query if user_query else "Explain this image in detail based on the selected language."
+                    # ১২০ এবং ১২১ নম্বর লাইনটি এভাবে লিখুন:
+final_text_query = current_query if current_query else "Explain this image in detail based on the selected language."
                     
                     # ভিশন মডেলের জন্য মেসেজ ফরম্যাট
                     user_content = [
