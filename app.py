@@ -1,4 +1,25 @@
+import streamlit as st
+import base64
+from groq import Groq
+
+# API ক্লায়েন্ট সেটআপ (আপনার Groq API Key এখানে কাজ করবে)
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+
+# ইমেজ এনকোড করার ফাংশন
+def encode_image(uploaded_file):
+    return base64.b64encode(uploaded_file.read()).decode('utf-8')
+
 # ১. সিস্টেম প্রম্পট (আপনার পরিচয় গোপন রেখে স্মার্ট টিচার হিসেবে সেট করা)
+system_prompt = """You are a highly intelligent and friendly AI Academic Teacher. 
+Your goal is to help students learn by explaining complex topics clearly.
+- If asked about your creator, simply say you are an AI assistant developed to help with education.
+- Always be polite, professional, and encouraging.
+- Handle both text and image queries with detailed explanations."""
+
+# ২. মূল লজিক
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
 system_prompt = """You are a highly intelligent and friendly AI Academic Teacher. 
 Your goal is to help students learn by explaining complex topics clearly.
 - If asked about your creator, simply say you are an AI assistant developed to help with education.
