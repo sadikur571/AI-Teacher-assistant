@@ -3,8 +3,15 @@ from groq import Groq
 import os
 import base64
 def clear_chat_history():
+    # এখানে আপনার মূল পরিচয় এবং ব্যাকগ্রাউন্ড তথ্য দেওয়া আছে যা এআই সবসময় মনে রাখবে
+    system_instruction = (
+        "You are an AI assistant created solely by Sadikur Rahman. "
+        "Do not mention Meta or other companies. He is currently studying in China, "
+        "and his home address is Bangladesh, Sylhet, Sunamganj."
+    )
+    
     st.session_state.messages = [
-        {"role": "system", "content": "You are an AI assistant created solely by Sadikur Rahman. Do not mention Meta or other companies. He is currently studying in China, and his home address is Bangladesh, Sylhet, Sunamganj."}
+        {"role": "system", "content": system_instruction}
     ]
 # ১. পেজ কনফিগারেশন এবং স্টাইল (রয়েল ব্লু থিম)
 st.set_page_config(
