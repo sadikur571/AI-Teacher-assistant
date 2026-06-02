@@ -87,8 +87,14 @@ if uploaded_file is not None:
     st.image(uploaded_file, caption="Uploaded Image", width=400)
 
 # ৫. প্রশ্ন লেখার টেক্সট বক্স
-user_query = st.text_area("Ask your question to AI Teacher: / আপনার প্রশ্নটি লিখুন:", height=100)
+# হিস্ট্রি সেভ করার জন্য লজিক
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
+# চ্যাট ইনপুট বক্স
+if prompt := st.chat_input("Ask your question to AI Teacher:"):
+    st.session_state.chat_history.append(prompt)
+    user_query = prompt  # আপনার আগের লজিকের সাথে মিলিয়ে রাখার জন্য
 # 六. উত্তর জেনারেট করার বাটন ও লজিক
 if st.button("Get AI Answer"):
     if not user_query and uploaded_file is None:
