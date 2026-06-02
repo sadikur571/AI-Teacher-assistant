@@ -8,7 +8,9 @@ client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 # ইমেজ এনকোড করার ফাংশন
 def encode_image(uploaded_file):
     return base64.b64encode(uploaded_file.read()).decode('utf-8')
-
+# এই লাইন দুটি যোগ করুন:
+uploaded_file = st.file_uploader("আপনার ছবিটি আপলোড করুন")
+current_query = st.chat_input("আপনার প্রশ্ন এখানে লিখুন...")
 # সিস্টেম প্রম্পট
 system_prompt = """You are a highly intelligent and friendly AI Academic Teacher. 
 Your goal is to help students learn by explaining complex topics clearly.
