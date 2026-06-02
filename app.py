@@ -2,51 +2,41 @@ import streamlit as st
 import base64
 from groq import Groq
 
-# API ক্লায়েন্ট সেটআপ (আপনার Groq API Key এখানে কাজ করবে)
+# API ক্লায়েন্ট সেটআপ
 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 # ইমেজ এনকোড করার ফাংশন
 def encode_image(uploaded_file):
     return base64.b64encode(uploaded_file.read()).decode('utf-8')
 
-# ১. সিস্টেম প্রম্পট (আপনার পরিচয় গোপন রেখে স্মার্ট টিচার হিসেবে সেট করা)
+# সিস্টেম প্রম্পট
 system_prompt = """You are a highly intelligent and friendly AI Academic Teacher. 
 Your goal is to help students learn by explaining complex topics clearly.
 - If asked about your creator, simply say you are an AI assistant developed to help with education.
 - Always be polite, professional, and encouraging.
 - Handle both text and image queries with detailed explanations."""
 
-# ২. মূল লজিক
+# হিস্ট্রি ইনিশিয়ালাইজেশন
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-system_prompt = """You are a highly intelligent and friendly AI Academic Teacher. 
-Your goal is to help students learn by explaining complex topics clearly.
-- If asked about your creator, simply say you are an AI assistant developed to help with education.
-- Always be polite, professional, and encouraging.
-- Handle both text and image queries with detailed explanations."""
-
-# ২. মূল লজিক (ইমেজ প্রসেসিং + হিস্ট্রি + এপিআই কল)
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# ইউজার ইনপুট ও ইমেজ প্রসেসিং
+# মূল লজিক শুরু
 with st.spinner("AI Teacher is thinking..."):
     try:
-        # ইমেজ প্রসেসিং ও ইউজার কনটেন্ট তৈরি
+        # ইমেজ প্রসেসিং ও কনটেন্ট তৈরি
         if uploaded_file is not None:
             base64_image = encode_image(uploaded_file)
             user_content = [
-                {"type": "text", "text": current_query if current_query else "Please explain this image."},
+                {"type": "text", "text": current_query if current_query else "Explain this image."},
                 {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
             ]
         else:
-            user_content = current_query if current_query else "Hello! How can I help you with your studies?"
+            user_content = current_query if current_query else "Hello! How can I help you today?"
 
-        # মেসেজ হিস্ট্রিতে যোগ করা
+        # হিস্ট্রিতে যোগ করা
         st.session_state.messages.append({"role": "user", "content": user_content})
 
-        # এপিআই কল
+        # API কল
         response = client.chat.completions.create(
             model="meta-llama/llama-4-scout-17b-16e-instruct",
             messages=[{"role": "system", "content": system_prompt}] + st.session_state.messages,
@@ -56,12 +46,11 @@ with st.spinner("AI Teacher is thinking..."):
 
         # উত্তর প্রদর্শন
         response_text = response.choices[0].message.content
-        
         st.markdown("---")
         st.subheader("📝 AI Teacher's Response:")
         st.write(response_text)
 
-        # হিস্ট্রিতে অ্যাসিস্ট্যান্টের উত্তর রাখা (যাতে স্মৃতি থাকে)
+        # হিস্ট্রিতে রাখা
         st.session_state.messages.append({"role": "assistant", "content": response_text})
 
     except Exception as e:
