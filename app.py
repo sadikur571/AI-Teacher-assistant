@@ -97,7 +97,7 @@ if prompt := st.chat_input("Ask your question to AI Teacher:"):
     user_query = prompt  # আপনার আগের লজিকের সাথে মিলিয়ে রাখার জন্য
 # 六. উত্তর জেনারেট করার বাটন ও লজিক
 if st.button("Get AI Answer"):
-    if not user_query and uploaded_file is None:
+    if len(st.session_state.chat_history) == 0 and uploaded_file is None:
         st.warning("Please enter a question or upload an image first! / দয়া করে একটি প্রশ্ন লিখুন অথবা ছবি আপলোড করুন!")
     else:
         with st.spinner("AI Teacher is thinking..."):
