@@ -105,49 +105,40 @@ if st.button("Get AI Answer"):
         current_query = st.session_state.chat_history[-1] if len(st.session_state.chat_history) > 0 else "Explain this"
         
         with st.spinner("AI Teacher is thinking..."):
-            try:
-                # মেসেজ লিস্ট তৈরি (নতুন লজিক অনুযায়ী)
-                messages = [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": current_query}
+        try:
+            # ১. ইমেজ বা টেক্সট প্রসেসিং
+            if uploaded_file is not None:
+                base64_image = encode_image(uploaded_file)
+                final_text_query = current_query if current_query else "Explain this image in detail based on the selected language."
+                user_content = [
+                    {"type": "text", "text": final_text_query},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
                 ]
+            else:
+                user_content = current_query
+            
+            # ২. মেসেজ হিস্ট্রিতে যোগ করা
+            st.session_state.messages.append({"role": "user", "content": user_content})
+            
+            # ৩. Groq API কল করা
+            response = client.chat.completions.create(
+                model="meta-llama/llama-4-scout-17b-16e-instruct",
+                messages=[{"role": "system", "content": system_prompt}] + st.session_state.messages,
+                temperature=0.3,
+                max_tokens=2048
+            )
+            
+            # ৪. উত্তর স্ক্রিনে দেখানো
+            response_text = response.choices[0].message.content
+            st.markdown("---")
+            st.subheader("📝 AI Teacher's Response:")
+            st.write(response_text)
+            
+            # ৫. অ্যাসিস্ট্যান্টের উত্তর হিস্ট্রিতে যোগ করা
+            st.session_state.messages.append({"role": "assistant", "content": response_text})
+
+        except Exception as e:
+            # কোনো ভুল হলে এখানে ধরা পড়বে
+            st.error(f"Error: {e}")
                 
-                # যদি ইউজার ছবি আপলোড করে থাকে
-                if uploaded_file is not None:
-                    base64_image = encode_image(uploaded_file)
-                    
-                    # প্রম্পট যদি খালি থাকে তবে ডিফল্ট প্রশ্ন দেওয়া
-                    # ১২০ এবং ১২১ নম্বর লাইনটি এভাবে লিখুন:
-final_text_query = current_query if current_query else "Explain this image in detail based on the selected language."
-                    
-                    # ভিশন মডেলের জন্য মেসেজ ফরম্যাট
-                    user_content = [
-                        {"type": "text", "text": final_text_query},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
-                            }
-                        }
-                    ]
-                else:
-                    # যদি শুধু টেক্সট প্রশ্ন হয়
-                    user_content = user_query
-                
-                st.session_state.messages.append({"role": "user", "content": user_content})
-                
-                # Groq API কল করা (Llama 3.2 Vision Model)
-                response = client.chat.completions.create(
-                    model="meta-llama/llama-4-scout-17b-16e-instruct",
-                    messages=[{"role": "system", "content": system_prompt}] + st.session_state.messages,
-    temperature=0.3,
-    max_tokens=2048
-)
-                
-                # উত্তর স্ক্রিনে দেখানো
-                st.markdown("---")
-                st.subheader("📝 AI Teacher's Response:")
-                st.write(response.choices[0].message.content)
-                
-            except Exception as e:
-                st.error(f"Error generating response: {e}")
+           
