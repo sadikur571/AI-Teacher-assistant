@@ -1,36 +1,54 @@
 import streamlit as st
 import base64
 from groq import Groq
+from gtts import gTTS
+import io
 
+# পৃষ্ঠার টাইপ ও লেআউট সেটআপ
 st.set_page_config(page_title="AI Academic Teacher Assistant", page_icon="🤖", layout="centered")
 
+# API ক্লায়েন্ট সেটআপ
 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 def encode_image(uploaded_file):
     return base64.b64encode(uploaded_file.read()).decode('utf-8')
 
+# সিস্টেম প্রম্পট (আপনার নাম এবং ভাষা নির্দেশাবলীসহ)
 system_prompt = """You are a professional AI Teacher Assistant created by Sadikur Rahman. 
 - If asked about your creator, always mention you were created by Sadikur Rahman.
-- Always answer in the language the user asks in (if asked in Chinese, reply in Chinese).
+- Always answer in the language the user asks in (automatically match the user's language).
 - Always be polite, professional, and encouraging.
 - Help students with academic questions and explain concepts clearly."""
 
+# সাইডবারে সেটিংস ও হিস্ট্রি পরিষ্কার করার বাটন
 with st.sidebar:
     st.header("⚙️ Settings")
     if st.button("🗑️ Clear Chat History"):
         st.session_state.messages = []
         st.rerun()
     st.markdown("---")
+    
+    # ভয়েস প্লে করার অপশন অন/অফ করার টগল
+    speak_response = st.toggle("🔊 Enable Voice Output (Listen to AI)", value=True)
+    
+    st.markdown("---")
     st.info("Developed by Sadikur Rahman for Academic Support.")
 
+# হিস্ট্রি বজায় রাখার জন্য ইনিশিয়ালাইজেশন
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# শিরোনাম
 st.title("🎓 AI Academic Teacher Assistant")
-st.write("Ask questions via text, voice, or upload an image for explanation!")
+st.write("Ask questions in any language via text, voice, or upload an image!")
 
+# ইনপুট অপশনসমূহ: ছবি, ভয়েস এবং টেক্সট
 uploaded_file = st.file_uploader("Upload an image (optional)", type=["jpg", "jpeg", "png"])
-audio_file = st.audio_input("🎤 Or record your voice query:")
+
+# ভয়েস ইনপুট (যেকোনো ভাষা অটো-ডিটেক্ট করবে)
+audio_file = st.audio_input("🎤 Record your voice query (Any Language):")
+
+# সাধারণ লেখার চ্যাট ইনপুট
 current_query = st.chat_input("Ask your question here...")
 
 final_query = None
@@ -38,21 +56,24 @@ final_query = None
 if current_query:
     final_query = current_query
 elif audio_file is not None:
-    with st.spinner("Transcribing your voice..."):
+    with st.spinner("Processing your voice (Multilingual)..."):
         try:
+            # ভাষা নির্দিষ্ট না করে অটো-ডিটেক্ট মোডে Whisper ব্যবহার করা হয়েছে
             transcription = client.audio.transcriptions.create(
                 model="whisper-large-v3",
                 file=("audio.wav", audio_file.read()),
-                prompt="Translate or transcribe the audio accurately."
+                prompt="Accurately transcribe the speech in whichever language it is spoken."
             )
             final_query = transcription.text
             st.info(f"🗣️ You said: {final_query}")
         except Exception as e:
             st.error(f"Voice Transcription Error: {e}")
 
+# মূল লজিক (যখন কোনো টেক্সট বা ভয়েস পাওয়া যাবে)
 if final_query:
     with st.spinner("AI Teacher is thinking..."):
         try:
+            # ইমেজ প্রসেসিং
             if uploaded_file is not None:
                 base64_image = encode_image(uploaded_file)
                 user_content = [
@@ -62,8 +83,10 @@ if final_query:
             else:
                 user_content = final_query
             
+            # মেসেজ হিস্ট্রিতে যোগ করা
             st.session_state.messages.append({"role": "user", "content": user_content})
             
+            # এপিআই কল (স্টেবল মডেল)
             response = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=[{"role": "system", "content": system_prompt}] + st.session_state.messages,
@@ -71,12 +94,27 @@ if final_query:
                 max_tokens=2048
             )
             
+            # উত্তর সংগ্রহ
             response_text = response.choices[0].message.content
+            
+            # হিস্ট্রিতে সহকারী উত্তর যোগ করা
             st.session_state.messages.append({"role": "assistant", "content": response_text})
+
+            # যদি ভয়েস আউটপুট অন থাকে, তবে এআই-এর উত্তর অডিও তে রূপান্তর করা
+            if speak_response:
+                try:
+                    tts = gTTS(text=response_text, lang='en') # জেনেরিক বা অটো ভাষা সমর্থন
+                    audio_bytes = io.BytesIO()
+                    tts.write_to_fp(audio_bytes)
+                    audio_bytes.seek(0)
+                    st.audio(audio_bytes, format='audio/mp3', autoplay=True)
+                except Exception as tts_err:
+                    pass
 
         except Exception as e:
             st.error(f"Error: {e}")
 
+# চ্যাট হিস্ট্রি সুন্দরভাবে স্ক্রিনে দেখানোর লজিক
 for message in st.session_state.messages:
     role = message["role"]
     content = message["content"]
