@@ -110,4 +110,4 @@ for message in st.session_state.messages:
                 if item["type"] == "text":
                     st.write(item["text"])
                 elif item["type"] == "image_url":
-                    st.image(item["image_url"]["url"], caption="Uploaded Image", width=300)t"])
+                    st.image(item["image_url"]["url"], caption="Uploaded Image", width=300)l"], caption="Uploaded Image", width=300)t"])
